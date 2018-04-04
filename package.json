@@ -1,0 +1,18 @@
+{
+  "name": "legacy-app-server-cli",
+  "version": "1.0.0",
+  "description": "CLI tools for the Legacy App Server",
+  "main": "index.js",
+  "dependencies": {
+    "cmd-executor": "^1.1.1",
+    "readline-sync": "^1.4.9",
+    "yargs": "^11.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {},
+  "bin": {
+    "las": "./index.js"
+  },
+  "author": "Pranav Nutalapati",
+  "license": "MIT"
+}
