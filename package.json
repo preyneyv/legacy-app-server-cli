@@ -1,6 +1,6 @@
 {
   "name": "legacy-app-server-cli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CLI tools for the Legacy App Server",
   "main": "index.js",
   "dependencies": {
@@ -14,5 +14,6 @@
     "las": "./index.js"
   },
   "author": "Pranav Nutalapati",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": "git@github.com:preyneyv/legacy-app-server-cli.git"
 }
