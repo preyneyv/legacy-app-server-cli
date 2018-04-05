@@ -41,7 +41,8 @@ require('yargs')
 		} catch(e) {
 			process.exit(1)
 		}
-		console.log("\nDownloaded template\nInstalling dependencies. This may take a while")
+		console.log("\nDownloaded template")
+		console.log("Installing dependencies. This may take a while.")
 		process.chdir(directory)
 
 		// Remove
@@ -77,13 +78,15 @@ require('yargs')
 			cookieName: 'session',
 			secret: 'legacy app server development'
 		}))
-		client.app.use('/admin', admin.app)
+		client.app.use('/admin/', admin.app)
 		client.init()
 		admin.init()
 
 		server.listen(argv.port, () => {
 			console.log('App is served on port ' + argv.port + '.')
 			console.log('A socket.io server is also running!')
+			console.log(`Client server is at http://localhost:${port}/`)
+			console.log(`Admin server is at http://localhost:${port}/admin/`)
 		})
 	})
 	.argv
