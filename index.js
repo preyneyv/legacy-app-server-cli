@@ -103,15 +103,17 @@ require('yargs')
 				console.log('Client server is at' + ` http://localhost:${port}/`.green)
 				console.log('Admin server is at' + ` http://localhost:${port}/admin/`.green)
 			})
-			watcher.once('all', restartServer)
+			// watcher.once('all', restartServer)
 		}
 		watcher.on('ready', () => {
 			process.on('uncaughtException', error => {
+				console.error('AN ERROR OCCURED!'.red)
 				console.error(error)
-				console.log("Waiting for changes before restarting".yellow)
-				watcher.once('all', restartServer)
+				console.log("Waiting for changes before restarting".cyan)
+				// watcher.once('all', restartServer)
 			})
 			startServer()
 		})
+		watcher.on('all', restartServer)
 	})
 	.argv
