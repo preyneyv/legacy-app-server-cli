@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+require('colors')
 let resolve = require('path').resolve
 let basename = require('path').basename
 let fs = require('fs')
@@ -66,27 +67,51 @@ require('yargs')
 				default: 3000
 			})
 	}, async (argv) => {
+		let port = argv.port
+		let projectDir = resolve('.')
 		// let client = require('./index.js')
-		let client = require(resolve('index.js'))
-		let admin = require(resolve('admin/index.js'))
-
-		const server = require('http').createServer(client.app)
-		global.io = require('socket.io').listen(server)
-
-		const clientSessions = require('client-sessions')
-		client.app.use(clientSessions({
-			cookieName: 'session',
-			secret: 'legacy app server development'
-		}))
-		client.app.use('/admin/', admin.app)
-		client.init()
-		admin.init()
-
-		server.listen(argv.port, () => {
-			console.log('App is served on port ' + argv.port + '.')
-			console.log('A socket.io server is also running!')
-			console.log(`Client server is at http://localhost:${port}/`)
-			console.log(`Admin server is at http://localhost:${port}/admin/`)
+		let watcher = require('chokidar').watch('./', {
+			awaitWriteFinish: {
+				stabilityThreshold: 150
+			}
+		})
+		let server, client, admin
+		function restartServer() {
+			console.log()
+			console.log('Restarting!'.yellow)
+			Object.keys(require.cache)
+			.forEach(id => {
+				if (id.startsWith(projectDir)) delete require.cache[id];
+			})
+			startServer()
+			global.io = require('socket.io').listen(server)
+		}
+		function startServer() {
+			if (server) server.close();
+			client = require(resolve('index.js'))
+			admin = require(resolve('admin/index.js'))
+			server = require('http').createServer(client.app)
+			const clientSessions = require('client-sessions')
+			client.app.use(clientSessions({
+				cookieName: 'session',
+				secret: 'legacy app server development'
+			}))
+			client.app.use('/admin/', admin.app)
+			client.init()
+			admin.init()
+			server.listen(port, () => {
+				console.log('Client server is at' + ` http://localhost:${port}/`.green)
+				console.log('Admin server is at' + ` http://localhost:${port}/admin/`.green)
+			})
+			watcher.once('all', restartServer)
+		}
+		watcher.on('ready', () => {
+			process.on('uncaughtException', error => {
+				console.error(error)
+				console.log("Waiting for changes before restarting".yellow)
+				watcher.once('all', restartServer)
+			})
+			startServer()
 		})
 	})
 	.argv
