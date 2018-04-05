@@ -47,13 +47,43 @@ require('yargs')
 		// Remove
 		await exec('rm -rf .git')
 	
-		let package = JSON.stringify({
+		let package = {
 			...require(resolve(directory, 'package.json')),
 			...opts
-		}, null, 2)
-		fs.writeFileSync(resolve(directory, 'package.json'), package)
+		}
+		delete package['repository']
+		let str = JSON.stringify(package, null, 2)
+		fs.writeFileSync(resolve(directory, 'package.json'), str)
 
 		await exec('npm install --progress')
 		console.log("Dependencies installed!")
+	})
+	.command('serve [port]', 'serve the app in the current directory', (yargs) => {
+		yargs
+			.positional('port', {
+				describe: 'port to start the server on',
+				default: 3000
+			})
+	}, async (argv) => {
+		// let client = require('./index.js')
+		let client = require(resolve('index.js'))
+		let admin = require(resolve('admin/index.js'))
+
+		const server = require('http').createServer(client.app)
+		global.io = require('socket.io').listen(server)
+
+		const clientSessions = require('client-sessions')
+		client.app.use(clientSessions({
+			cookieName: 'session',
+			secret: 'legacy app server development'
+		}))
+		client.app.use('/admin', admin.app)
+		client.init()
+		admin.init()
+
+		server.listen(argv.port, () => {
+			console.log('App is served on port ' + argv.port + '.')
+			console.log('A socket.io server is also running!')
+		})
 	})
 	.argv
