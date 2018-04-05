@@ -69,16 +69,16 @@ require('yargs')
 	}, async (argv) => {
 		let port = argv.port
 		let projectDir = resolve('.')
-		// let client = require('./index.js')
 		let watcher = require('chokidar').watch('./', {
 			awaitWriteFinish: {
-				stabilityThreshold: 150
+				stabilityThreshold: 15
 			}
 		})
+		let bodyParser = require('body-parser')
 		let server, client, admin
 		function restartServer() {
 			console.log()
-			console.log('Restarting!'.yellow)
+			console.log('Restarting!'.cyan)
 			Object.keys(require.cache)
 			.forEach(id => {
 				if (id.startsWith(projectDir)) delete require.cache[id];
@@ -96,6 +96,20 @@ require('yargs')
 				cookieName: 'session',
 				secret: 'legacy app server development'
 			}))
+			client.app.use(bodyParser.json())
+			client.app.use(bodyParser.urlencoded({ extended: true }))
+			client.app.use((req, res, next) => {
+				res.file = file => res.sendFile(path.resolve(appDetails.path, file))
+				req.post = req.body
+				req.get = req.query
+				next()
+			})
+
+
+			admin.app.use((req, res, next) => {
+				res.file = file => res.sendFile(path.resolve(appDetails.path, 'admin', file))
+				next()
+			})
 			client.app.use('/admin/', admin.app)
 			client.init()
 			admin.init()
@@ -103,14 +117,12 @@ require('yargs')
 				console.log('Client server is at' + ` http://localhost:${port}/`.green)
 				console.log('Admin server is at' + ` http://localhost:${port}/admin/`.green)
 			})
-			// watcher.once('all', restartServer)
 		}
 		watcher.on('ready', () => {
 			process.on('uncaughtException', error => {
 				console.error('AN ERROR OCCURED!'.red)
 				console.error(error)
-				console.log("Waiting for changes before restarting".cyan)
-				// watcher.once('all', restartServer)
+				console.log("Waiting for changes before restarting".yellow)
 			})
 			startServer()
 		})
