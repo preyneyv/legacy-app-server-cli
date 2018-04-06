@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 require('colors')
-let resolve = require('path').resolve
-let basename = require('path').basename
+let path = require('path')
+let { resolve, basename } = path
 let fs = require('fs')
 let rl = require('readline-sync')
 let exec = (command) => new Promise((resolve, reject) => {
@@ -69,6 +69,7 @@ require('yargs')
 	}, async (argv) => {
 		let port = argv.port
 		let projectDir = resolve('.')
+
 		let watcher = require('chokidar').watch('./', {
 			awaitWriteFinish: {
 				stabilityThreshold: 15
@@ -89,9 +90,24 @@ require('yargs')
 		function startServer() {
 			if (server) server.close();
 			client = require(resolve('index.js'))
+
 			admin = require(resolve('admin/index.js'))
 			server = require('http').createServer(client.app)
+
 			const clientSessions = require('client-sessions')
+			client.app.use((req, res, next) => {
+				if (req.url.endsWith('/')) {
+					return next()
+				} else {
+					if (path.extname(req.url) == '') {
+						// IT'S A ROUTE
+						res.redirect(req.url + '/')
+					} else {
+						// IT'S A FILE
+						return next()
+					}
+				}
+			})
 			client.app.use(clientSessions({
 				cookieName: 'session',
 				secret: 'legacy app server development'
@@ -99,15 +115,13 @@ require('yargs')
 			client.app.use(bodyParser.json())
 			client.app.use(bodyParser.urlencoded({ extended: true }))
 			client.app.use((req, res, next) => {
-				res.file = file => res.sendFile(path.resolve(appDetails.path, file))
+				res.file = file => res.sendFile(path.resolve(projectDir, file))
 				req.post = req.body
 				req.get = req.query
 				next()
 			})
-
-
 			admin.app.use((req, res, next) => {
-				res.file = file => res.sendFile(path.resolve(appDetails.path, 'admin', file))
+				res.file = file => res.sendFile(path.resolve(projectDir, 'admin', file))
 				next()
 			})
 			client.app.use('/admin/', admin.app)

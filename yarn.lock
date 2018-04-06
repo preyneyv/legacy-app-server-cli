@@ -591,6 +591,10 @@ expand-brackets@^2.1.4:
     snapdragon "^0.8.1"
     to-regex "^3.0.1"
 
+express-slash@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/express-slash/-/express-slash-2.0.1.tgz#76eb869fed8f71ae4f98785cbe00bf1bb454d627"
+
 express@^4.16.3:
   version "4.16.3"
   resolved "https://registry.yarnpkg.com/express/-/express-4.16.3.tgz#6af8a502350db3246ecc4becf6b5a34d22f7ed53"
@@ -1957,6 +1961,10 @@ tough-cookie@~2.3.0:
   resolved "https://registry.yarnpkg.com/tough-cookie/-/tough-cookie-2.3.4.tgz#ec60cee38ac675063ffc97a5c18970578ee83655"
   dependencies:
     punycode "^1.4.1"
+
+trailing-slash@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/trailing-slash/-/trailing-slash-2.0.0.tgz#16d94a090cdf9e22e231630c92d7be6b0eb132d5"
 
 tunnel-agent@^0.6.0:
   version "0.6.0"
