@@ -96,6 +96,7 @@ require('yargs')
 
 			const clientSessions = require('client-sessions')
 			client.app.use((req, res, next) => {
+				if (req.method == "POST") return next();
 				if (req.url.endsWith('/')) {
 					return next()
 				} else {
