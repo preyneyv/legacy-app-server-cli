@@ -1,6 +1,6 @@
 {
   "name": "legacy-app-server-cli",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "CLI tools for the Legacy App Server",
   "main": "index.js",
   "dependencies": {
