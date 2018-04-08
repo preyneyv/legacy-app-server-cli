@@ -106,7 +106,13 @@ require('yargs')
 				} else {
 					if (path.extname(req.url) == '') {
 						// IT'S A ROUTE
-						res.redirect(req.url.split('?')[0] + '/?' + req.url.split('?')[1])
+						let qIndex = req.url.indexOf('?')
+						let newUrl
+						if (qIndex > -1)
+							newUrl = req.url.split('?')[0] + '/?' + req.url.split('?')[1]
+						else
+							newUrl = req.url + '/'
+						res.redirect(newUrl)
 					} else {
 						// IT'S A FILE
 						return next()
