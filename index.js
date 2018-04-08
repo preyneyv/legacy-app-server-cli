@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 require('colors')
 let path = require('path')
+let express = require('express')
 let { resolve, basename } = path
 let fs = require('fs')
 let rl = require('readline-sync')
@@ -75,28 +76,31 @@ require('yargs')
 				stabilityThreshold: 15
 			}
 		})
-		let bodyParser = require('body-parser')
 		let server, client, admin
 		function restartServer() {
 			console.log()
 			console.log('Restarting!'.cyan)
 			Object.keys(require.cache)
 			.forEach(id => {
-				if (id.startsWith(projectDir)) delete require.cache[id];
+				if (id.startsWith(projectDir)
+				|| id.indexOf('body-parser') != -1) delete require.cache[id];
 			})
 			startServer()
 			global.io = require('socket.io').listen(server)
 		}
 		function startServer() {
 			if (server) server.close();
+			const clientSessions = require('client-sessions')
+
 			client = require(resolve('index.js'))
+			client.app.use(express.json())
+			client.app.use(express.urlencoded({extended: true}))
 
 			admin = require(resolve('admin/index.js'))
 			server = require('http').createServer(client.app)
 
-			const clientSessions = require('client-sessions')
 			client.app.use((req, res, next) => {
-				if (req.method == "POST") return next();
+				if (req.method != "GET") return next();
 				if (req.url.endsWith('/')) {
 					return next()
 				} else {
@@ -113,8 +117,6 @@ require('yargs')
 				cookieName: 'session',
 				secret: 'legacy app server development'
 			}))
-			client.app.use(bodyParser.json())
-			client.app.use(bodyParser.urlencoded({ extended: true }))
 			client.app.use((req, res, next) => {
 				res.file = file => res.sendFile(path.resolve(projectDir, file))
 				req.post = req.body
