@@ -101,7 +101,7 @@ require('yargs')
 
 			client.app.use((req, res, next) => {
 				if (req.method != "GET") return next();
-				if (req.url.endsWith('/')) {
+				if (req.url.split('?')[0].endsWith('/')) {
 					return next()
 				} else {
 					if (path.extname(req.url) == '') {
