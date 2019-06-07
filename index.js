@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 require('colors')
 let path = require('path')
+const cors = require('cors')
 let express = require('express')
 let { resolve, basename } = path
 let fs = require('fs')
@@ -98,6 +99,16 @@ require('yargs')
 
 			admin = require(resolve('admin/index.js'))
 			server = require('http').createServer(client.app)
+			
+			// enable cors
+			client.app.use(cors())
+			// client.app.use('*', (_, res, next) => {
+			// 	console.log('set cors')
+			// 	res.setHeader("Access-Control-Allow-Origin", "*");
+			// 	res.setHeader('Access-Control-Allow-Methods', '*');
+			// 	res.setHeader("Access-Control-Allow-Headers", "*");
+			// 	next();
+			// });
 
 			client.app.use((req, res, next) => {
 				if (req.method != "GET") return next();
